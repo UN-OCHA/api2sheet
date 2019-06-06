@@ -1,27 +1,3 @@
-<!--<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>api2sheet</title>
-  <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="icon" href="favicon.ico" type="image/x-icon" />
-  <link rel="apple-touch-icon" href="images/hello-icon-152.png">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="white"/>
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="api2sheet">
-  <meta name="msapplication-TileImage" content="images/hello-icon-144.png">
-  <meta name="msapplication-TileColor" content="#FFFFFF">
-</head>
-<body class="fullscreen">
-  <div class="container">
-    <h1 class="title">My Hello World!</h1>
-  </div>
-  <script src="js/main.js"></script>
-</body>
-</html>-->
-
 <!doctype html>
 <html lang="en">
   <head>
@@ -48,20 +24,27 @@
         <small id="spreadsheetIdHelp" class="form-text text-muted">The spreadsheet ID. Make sure the spreadsheet is empty.</small>
       </div>
       <div class="form-group">
+        <label for="sheet">Sheet Name</label>
+        <input type="text" class="form-control" id="sheet" aria-describedby="sheetHelp" placeholder="Enter the sheet name" name="sheet" value="Sheet1">
+        <small id="sheetHelp" class="form-text text-muted">The sheet name.</small>
+      </div>
+      <div class="form-group">
         <label for="apiUrl">API URL</label>
         <input type="text" class="form-control" id="apiUrl" placeholder="Enter the API URL" aria-describedby="apiUrlHelp" name="apiUrl" value="" >
         <small id="apiUrlHelp" class="form-text text-muted">The API URL. For example https://jsonplaceholder.typicode.com/posts</small>
       </div>
+      <div class="form-group">
+        <label for="apiKey">API Key</label>
+        <textarea class="form-control" id="apiKey" aria-describedby="apiKeyHelp" name="apiKey" rows="3"></textarea>
+        <small id="apiKeyHelp" class="form-text text-muted">The API Key will be added to the Authorization header, using "Bearer <API_KEY>".</small>
+      </div>
       <button type="submit" class="btn btn-primary">Submit</button>
     </form>
 
-    <!--Add buttons to initiate auth sequence and sign out-->
-    <button id="authorize_button" style="display: none;">Authorize</button>
-    <button id="signout_button" style="display: none;">Sign Out</button>
-
+    <div id="callback" class="hidden"></div>
     <pre id="content" style="white-space: pre-wrap;"></pre>
 
-    <p class="lead">Was this demo useful for you ? Would you like api2sheet become a real service ? Let me know by adding a comment <a href="https://www.gvj-web.com/blog/exporting-your-api-json-data-csv-file-google-spreadsheet">in this related blog post</a>.</p>
+    <p class="lead">Let me know what you think about this by adding a comment <a href="https://www.gvj-web.com/blog/exporting-your-api-json-data-csv-file-google-spreadsheet">in this related blog post</a>.</p>
 
     <p><a href="/pp.html" target="_blank">Privacy Policy</a></p>
 
@@ -87,7 +70,9 @@
 
       var form = document.getElementById('demoForm');
       var spreadsheetIdElt = $('#spreadsheetId');
+      var sheetElt = $('#sheet');
       var apiUrlElt = $('#apiUrl');
+      var apiKeyElt = $('#apiKey');
 
       /**
        *  On load, called to load the auth2 library and API client library.
@@ -131,72 +116,104 @@
       /**
        *  Sign in the user upon button click.
        */
-      function handleFormSubmit(event) {
+      async function handleFormSubmit(event) {
         event.preventDefault();
         if (!gapi.auth2.getAuthInstance().isSignedIn.get()) {
           gapi.auth2.getAuthInstance().signIn();
         }
-        writeData();
+        await writeData();
+        $('#callback').addClass("alert alert-success");
+        $('#callback').removeClass('hidden');
+        $('#callback').text('Spreadsheet updated.');
       }
 
-      /**
-       *  Sign out the user upon button click.
-       */
-      function handleSignoutClick(event) {
-        gapi.auth2.getAuthInstance().signOut();
-      }
-
-      /**
-       * Append a pre element to the body containing the given message
-       * as its text node. Used to display the results of the API call.
-       *
-       * @param {string} message Text to be placed in pre element.
-       */
-      function appendPre(message) {
-        var pre = document.getElementById('content');
-        var textContent = document.createTextNode(message + '\n');
-        pre.appendChild(textContent);
-      }
-
-      /**
-       * Print the names and majors of students in a sample spreadsheet:
-       * https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
-       */
-      function writeData() {
-        fetch(apiUrlElt.val())
-          .then((response) => {
-            return response.json();
-          })
-          .then((json) => {
-            if (json.data) {
-              json = json.data;
+      function buildValuesFromJSON(json, writeHeaders = false) {
+        if (json.data) {
+          json = json.data;
+        }
+        var headers = Object.keys(json[0]);
+        var values = [];
+        if (writeHeaders) {
+          values.push(headers);
+        }
+        for (var i = 0; i < json.length; i++) {
+          var tmpArray = Object.values(json[i]);
+          for (var j = 0; j < tmpArray.length; j++) {
+            if (tmpArray[j]) {
+              tmpArray[j] = tmpArray[j].toString();
             }
-            var headers = Object.keys(json[0]);
-            var values = [];
+          }
+          values.push(tmpArray);
+        }
+        return values;
+      }
+
+
+      /**
+       * Fetches data from API URL and writes it in the spreadsheet
+       */
+      async function writeData() {
+        var options = {};
+        var count = 1, offset = 0;
+        var headers = [];
+        if (apiKeyElt.val() !== '') {
+          options.headers = {
+            'Authorization': 'Bearer ' + apiKeyElt.val()
+          };
+        }
+        var url = apiUrlElt.val();
+        while (offset < count) {
+          var response = await fetch(url + '&offset=' + offset, options);
+          if (response.headers.get('x-total-count')) {
+            count = response.headers.get('x-total-count');
+          }
+          var json = await response.json();
+          if (count === 1 && json.count) {
+            count = json.count;
+          }
+
+          if (json.data) {
+            json = json.data;
+          }
+          var values = [];
+          var firstRun = false;
+          if (offset === 0) {
+            headers = Object.keys(json[0]);
             values.push(headers);
-            for (var i = 0; i < json.length; i++) {
-              values.push(Object.values(json[i]));
+            firstRun = true;
+          }
+          for (var i = 0; i < json.length; i++) {
+            var tmpArray = [];
+            for (var j = 0; j < headers.length; j++) {
+              if (json[i][headers[j]]) {
+                tmpArray[j] = json[i][headers[j]].toString();
+              }
+              else {
+                tmpArray[j] = "";
+              }
             }
-            console.log(Object.keys(values[0]).length);
-            /*var values = [
-              ['Id', 'Name', 'Email'],
-              ['1234', 'Guillaume', 'guillaume@viguierjust.com']
-            ];*/
-            var body = {
-              values: values
-            };
+            values.push(tmpArray);
+          }
+          var body = {
+            values: values
+          };
 
-            return gapi.client.sheets.spreadsheets.values.update({
-               spreadsheetId: spreadsheetIdElt.val(),
-               range: 'A1:E' + values.length,
-               valueInputOption: 'RAW',
-               resource: body
-            });
-          })
-          .then((response) => {
-            var result = response.result;
-            console.log(`${result.updatedCells} cells updated.`);
+          var rangeStart = offset + 1;
+          var rangeEnd = rangeStart + values.length;
+
+          offset = offset + values.length;
+          if (firstRun) {
+            offset -= 1;
+          }
+
+          await gapi.client.sheets.spreadsheets.values.update({
+            spreadsheetId: spreadsheetIdElt.val(),
+            range: sheetElt.val() + '!' + rangeStart + ':' + rangeEnd, 
+            //range: 'A1:' + letters[headers.length - 1] + values.length,
+            valueInputOption: 'RAW',
+            resource: body
           });
+        }
       }
 
     </script>
