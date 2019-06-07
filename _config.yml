@@ -1,0 +1,21 @@
+title: api2sheet
+description: Turn APIs into sheets
+baseurl: 'api2sheet' # the subpath of your site, e.g. /blog
+url: 'https://un-ocha.github.io' # the base hostname & protocol for your site, e.g. http://example.com
+email: ops@humanitarianresponse.info
+
+# Build settings
+markdown: kramdown
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - .vendor
+  - .bundle
+  - README.md
+
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default

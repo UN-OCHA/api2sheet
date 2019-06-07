@@ -1,0 +1,27 @@
+//——————————————————————————————————————————————————————————————————————————————
+// TAAS Colors
+//——————————————————————————————————————————————————————————————————————————————
+
+// Background colors
+$light-bg-color: $cd-light-grey;
+$primary-bg-color: $cd-ocha-blue;
+$secondary-bg-color: $cd-dark-blue;
+
+// Border colours
+$border-color: $cd-mid-light-grey;
+$highlight-border-color: $cd-dark-blue;
+$error-border-color: $cd-red;
+$light-border-color: $cd-light-grey;
+
+// Text colours
+$body-text-color: $cd-mid-grey;
+$heading-text-color: $cd-ocha-blue;
+$secondary-heading-text-color: $cd-dark-blue;
+$light-text-color: $cd-white;
+$link-text-color: $cd-dark-blue;
+$active-link-text-color: $cd-ocha-blue;
+$error-text-color: $cd-red;
+
+// Header
+$cd-highlight-color: lighten($primary-bg-color, 15%);
+$cd-nav-focus-bg: $cd-light-grey;
