@@ -1,5 +1,5 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
   <head>
     <title>api2sheet demo</title>
     <link rel="manifest" href="manifest.json">
@@ -44,7 +44,7 @@
     <div id="callback" class="hidden"></div>
     <pre id="content" style="white-space: pre-wrap;"></pre>
 
-    <p><a href="/pp.html" target="_blank">Privacy Policy</a></p>
+    <p><a href="privacy-policy/" target="_blank">Privacy Policy</a></p>
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -209,7 +209,7 @@
             });
             await gapi.client.sheets.spreadsheets.values.update({
               spreadsheetId: spreadsheetIdElt.val(),
-              range: sheetElt.val() + '!' + rangeStart + ':' + rangeEnd, 
+              range: sheetElt.val() + '!' + rangeStart + ':' + rangeEnd,
               valueInputOption: 'RAW',
               resource: body
             });
@@ -218,7 +218,7 @@
             // Use append instead of update
             await gapi.client.sheets.spreadsheets.values.append({
               spreadsheetId: spreadsheetIdElt.val(),
-              range: sheetElt.val() + '!' + rangeStart + ':' + rangeEnd, 
+              range: sheetElt.val() + '!' + rangeStart + ':' + rangeEnd,
               valueInputOption: 'RAW',
               resource: body
             });
