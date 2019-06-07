@@ -204,15 +204,27 @@
           offset = offset + values.length;
           if (firstRun) {
             offset -= 1;
+            // Clear sheet
+            await gapi.client.sheets.spreadsheets.values.values.clear({
+              spreadsheetId: spreadsheetIdElt.val(),
+              range: sheetElt.val()
+            });
+            await gapi.client.sheets.spreadsheets.values.update({
+              spreadsheetId: spreadsheetIdElt.val(),
+              range: sheetElt.val() + '!' + rangeStart + ':' + rangeEnd, 
+              valueInputOption: 'RAW',
+              resource: body
+            });
           }
-
-          await gapi.client.sheets.spreadsheets.values.update({
-            spreadsheetId: spreadsheetIdElt.val(),
-            range: sheetElt.val() + '!' + rangeStart + ':' + rangeEnd, 
-            //range: 'A1:' + letters[headers.length - 1] + values.length,
-            valueInputOption: 'RAW',
-            resource: body
-          });
+          else {
+            // Use append instead of update
+            await gapi.client.sheets.spreadsheets.values.append({
+              spreadsheetId: spreadsheetIdElt.val(),
+              range: sheetElt.val() + '!' + rangeStart + ':' + rangeEnd, 
+              valueInputOption: 'RAW',
+              resource: body
+            });
+          }
         }
       }
 
