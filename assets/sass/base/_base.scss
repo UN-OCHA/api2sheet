@@ -1,0 +1,34 @@
+//——————————————————————————————————————————————————————————————————————————————
+// TAAS: base defaults
+//——————————————————————————————————————————————————————————————————————————————
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html, input {
+  // Font size should be set at the correct percentage to match the base-font-size
+  // 16px = 100%
+  // 18px = 112.5%
+  // See http://pxtoem.com/ for conversion chart
+  font-size: $cd-font-size-base / 16 * 100%;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: sans-serif;
+  font-weight: 300;
+  color: $body-text-color;
+  line-height: 1.5;
+  background: white;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}

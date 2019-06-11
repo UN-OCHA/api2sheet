@@ -1,0 +1,100 @@
+//——————————————————————————————————————————————————————————————————————————————
+// TAAS: Typography
+//——————————————————————————————————————————————————————————————————————————————
+
+h1, h2 ,h3 ,h4 ,h5, p, ol, ul, dl {
+  margin-bottom: $base-unit;
+}
+
+h1, h2, h3, h4, h5 {
+  line-height: 1.2;
+  font-weight: bold;
+  font-family: 'Open Sans', sans-serif;
+  color: $heading-text-color;
+}
+
+h4, h5 {
+  font-weight: 400;
+}
+
+h2, h3 {
+  text-transform: uppercase;
+}
+
+h1 {
+  color: $heading-text-color;
+  font-weight: normal;
+  @include font-size($cd-font-size-large);
+
+  @include tablet {
+    @include font-size($cd-font-size-xlarge);
+  }
+}
+
+h1.page-heading {
+  padding-bottom: $base-unit*1.5;
+  border-bottom: 1px solid $border-color;
+  font-weight: 300;
+}
+
+a {
+  color: $link-text-color;
+
+  &:hover,
+  &:focus {
+    color: $active-link-text-color;
+    text-decoration: none;
+  }
+}
+
+ol, ul {
+  list-style: initial;
+  margin-left: $base-unit*3;
+}
+
+ol {
+  list-style: decimal;
+}
+
+li {
+  margin-bottom: $base-unit/4;
+}
+
+strong {
+  font-weight: 400;
+}
+
+em {
+  font-style: italic;
+}
+
+dt {
+  font-weight: 400;
+}
+
+dd {
+  margin-bottom: $base-unit;
+}
+
+button {
+  font-weight: 300;
+}
+
+@include min-width(sm) {
+  h1 {
+    @include font-size($cd-font-size-xlarge);
+  }
+
+  h2 {
+    @include font-size($cd-font-size-large);
+    font-weight: normal;
+  }
+
+  li {
+    margin-bottom: $base-unit/2;
+  }
+
+  h1, h2 ,h3 ,h4 ,h5, p, ol, ul, dl {
+    margin-bottom: $base-unit*2;
+  }
+}
