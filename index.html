@@ -192,7 +192,7 @@ title: api2sheet
       if (firstRun) {
         offset -= 1;
         // Clear sheet
-        await gapi.client.sheets.spreadsheets.values.values.clear({
+        await gapi.client.sheets.spreadsheets.values.clear({
           spreadsheetId: spreadsheetIdElt.val(),
           range: sheetElt.val()
         });
